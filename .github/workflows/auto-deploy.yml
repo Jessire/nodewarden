@@ -141,8 +141,9 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
         run: |
           set -euo pipefail
+          git remote set-url origin "https://github.com/${{ github.repository }}.git"
           git fetch origin main
-          if ! git merge-base --is-ancestor origin/main HEAD; then
+          if ! git merge-base --is-ancestor origin/main "$TAG"; then
             echo "Fork main is not an ancestor of upstream $TAG; refusing to overwrite it"
             exit 1
           fi
