@@ -7,10 +7,17 @@ const fi: Record<string, string> = {
   "nav_my_vault": "Oma holvi",
   "nav_vault_items": "Holvi",
   "nav_sends": "Lähetykset",
+  "nav_generator": "Luoja", "txt_password_generator": "Salasanageneraattori", "txt_password_generator_description": "Luo vahva ja yksilöllinen salasana paikallisesti tällä laitteella.", "txt_generator_type": "Generaattorin tyyppi", "txt_passphrase": "Salalause", "txt_generated_password": "Luotu salasana", "txt_password_strength": "Vahvuus", "txt_password_strength_weak": "Heikko", "txt_password_strength_fair": "Kohtalainen", "txt_password_strength_good": "Hyvä", "txt_password_strength_strong": "Vahva", "txt_generator_security_note": "Generointi tapahtuu paikallisesti. Salasanaa ei koskaan lähetetä palvelimelle.", "txt_generator_length": "Pituus", "txt_generator_character_types": "Merkkityypit", "txt_generator_uppercase": "Isot kirjaimet (A-Z)", "txt_generator_lowercase": "Pienet kirjaimet (a-z)", "txt_generator_numbers": "Numerot (0-9)", "txt_generator_special": "Erikoismerkit (!@#$%^&*)", "txt_generator_minimum": "Vähintään", "txt_generator_avoid_ambiguous": "Vältä epäselviä merkkejä", "txt_generator_words": "Sanojen määrä", "txt_generator_separator": "Sanaerotin", "txt_generator_capitalize": "Iso alkukirjain", "txt_generator_include_number": "Sisällytä numero",
+  "txt_generated_value": "Luotu arvo", "txt_generator_character_count": "{count} merkkiä", "txt_generator_pin": "PIN", "txt_generator_pin_description": "Luo numeerisen PIN-koodin paikallisesti kryptografisesti turvallisella satunnaisuudella.", "txt_generator_username": "Käyttäjänimi", "txt_generator_plus_addressed_email": "Plus-osoitteinen sähköposti", "txt_generator_catch_all_email": "Catch-all-sähköposti", "txt_generator_email": "Sähköpostiosoite", "txt_generator_domain": "Verkkotunnus",
+  "txt_generator_word_list": "Sanalista", "txt_generator_eff_word_list": "Pitkä EFF-sanalista", "txt_generator_custom_word_list": "Oma sanalista", "txt_generator_custom_words": "Omat sanat", "txt_generator_custom_words_placeholder": "Anna vähintään kaksi sanaa välilyönnein, pilkuin tai riveittäin",
+  "txt_generator_long_word_username": "Pitkäsanainen käyttäjänimi", "txt_generator_custom_word": "Oma muistisanaa", "txt_generator_subdomain_email": "Aliverkkotunnuksen sähköposti", "txt_generator_ssh_key": "SSH-avain", "txt_generator_ssh_generating": "Luodaan SSH-avainta…", "txt_generator_ssh_error": "Selain ei tue SSH-avaimen luontia.", "txt_generator_copy_public_key": "Kopioi julkinen avain", "txt_generator_ssh_security_note": "Avainpari luodaan paikallisesti eikä sitä lähetetä. Tallenna yksityinen avain nyt; NodeWarden ei säilytä sitä.", "txt_generator_public_key": "Julkinen avain", "txt_generator_private_key": "Yksityinen avain — pidä salassa", "txt_generator_ssh_algorithm": "Algoritmi", "txt_generator_key_length": "Avaimen pituus", "txt_generator_ssh_comment": "Julkisen avaimen kommentti", "txt_generator_ssh_rsa_description": "RSA on laajasti yhteensopiva. Käytä vähintään 2048 bittiä; 4096 on suositus.", "txt_generator_ssh_ed25519_description": "Ed25519 on nopea ja kompakti sekä suositeltu moderneille SSH-asiakkaille.",
+  "txt_generator_email_alias": "Sähköpostialias", "txt_generator_email_type": "Aliaksen tyyppi", "txt_generator_email_required_hint": "Anna sähköpostiosoite tai verkkotunnus aliaksen luomiseksi.", "txt_generator_email_description": "Syöte pysyy tällä laitteella ja sitä käytetään vain aliaksen muodostamiseen.", "txt_generator_long_word_username_description": "Yhdistä yksi tai useampi pitkä sana helposti muistettavaksi käyttäjänimeksi.",
   "nav_backup_strategy": "Pilvivarmuuskopiointi",
   "nav_import_export": "Tuonti ja Vienti",
   "nav_group_data_backup": "Data & Varmuuskopiointi",
   "nav_group_management": "Hallinta",
+  "nav_group_tools": "Työkalut",
+  "nav_group_system_management": "Järjestelmän hallinta",
   "txt_settings_appearance": "Ulkoasu",
   "txt_theme": "Teema",
   "txt_use_system_theme": "Käytä järjestelmän teemaa",
@@ -508,6 +515,7 @@ const fi: Record<string, string> = {
   "txt_create_account": "Luo tili",
   "txt_registering": "Luodaan tiliä...",
   "txt_register_failed": "Rekisteröinti epäonnistui",
+  "txt_web_crypto_unavailable": "Selaimen suojattu salaus ei ole käytettävissä. Avaa NodeWarden HTTPS-yhteydellä tuetussa selaimessa.",
   "txt_create_folder": "Luo kansio",
   "txt_create_folder_failed": "Kansion luonti epäonnistui",
   "txt_create_item_failed": "Nimikkeen luonti epäonnistui",
@@ -978,6 +986,7 @@ const fi: Record<string, string> = {
   "txt_save_profile_failed": "Profiilin tallennus epäonnistui",
   "txt_search_sends": "Hae lähetyksiä...",
   "txt_session_refresh_failed": "Istunnon päivitys epäonnistui. Kirjaudu sisään uudelleen.",
+  "txt_session_refresh_temporarily_unavailable": "Istuntoa ei voida tarkistaa juuri nyt. Kirjautuminen säilytetään ja tarkistusta yritetään uudelleen.",
   "txt_search_your_secure_vault": "Hae turvallisesta holvistasi...",
   "txt_search_items_count": "Hae {count} nimikkeen joukosta...",
   "txt_clear_search": "Tyhjennä haku",
@@ -1078,6 +1087,7 @@ const fi: Record<string, string> = {
   "txt_remove_device_failed": "Laitteen poistaminen epäonnistui",
   "txt_remove_all_devices_failed": "Kaikkien laitteiden poistaminen epäonnistui",
   "txt_update_item_failed": "Nimikkeen päivitys epäonnistui",
+  "txt_item_changed_elsewhere": "Kohdetta muutettiin toisessa sovelluksessa. Muokkauksesi ovat yhä lomakkeessa. Kopioi tarvittavat muutokset, avaa kohde uudelleen ja tallenna.",
   "txt_update_send_failed": "Lähetyksen päivitys epäonnistui",
   "txt_update_user_status_failed": "Käyttäjän tilan päivitys epäonnistui",
   "txt_use_recovery_code": "Käytä palautuskoodia",
@@ -1446,5 +1456,13 @@ const fi: Record<string, string> = {
   "txt_auth_request_missing_public_key": "Laitekirjautumispyynnöstä puuttuu julkinen avain",
   "txt_ip_address": "IP-osoite"
 };
+
+Object.assign(fi, {
+  "nav_password_security": "Salasanasuojaus", "txt_password_security": "Salasanojen turvatarkistus", "txt_password_security_privacy": "Salasanat tarkistetaan paikallisesti. Vain anonyymi hajautteen alku lähetetään vuototietokantaan tarkistuksen alkaessa.", "txt_check_password_security": "Aloita tarkistus", "txt_checking_password_security": "Tarkistetaan", "txt_recheck_password_security": "Tarkista uudelleen", "txt_password_security_ready": "Holvisi on valmis turvatarkistukseen.", "txt_password_security_no_login": "Tarkistettavia kirjautumissalasanoja ei ole.", "txt_password_security_manual": "Tarkistus käynnistyy vain valinnastasi. Tulokset säilyvät vain tällä sivulla.", "txt_password_security_no_login_help": "Lisää kirjautuminen salasanalla ja palaa sitten tarkistamaan se.", "txt_exposed_passwords": "Vuotaneet", "txt_reused_passwords": "Uudelleenkäytetyt", "txt_weak_passwords": "Heikot", "txt_passwords_checked": "Tarkistettu", "txt_password_security_unavailable": "{count} salasanatarkistusta ei tavoittanut vuototietokantaa. Niitä ei merkitä turvallisiksi.", "txt_password_security_not_checked": "Ei tarkistettu", "txt_password_exposed_count": "Löytyi {count} vuodosta", "txt_password_reused_count": "Käytetty {count} kertaa", "txt_weak_password": "Heikko salasana", "txt_no_password_risks": "Salasanariskejä ei löytynyt", "txt_open_vault": "Avaa holvi", "txt_check_password_breach": "Tarkista vuoto", "txt_password_not_found_in_breaches": "Ei löytynyt vuototietokannasta", "txt_password_security_check_failed": "Vuototarkistusta ei voitu suorittaa."
+});
+
+Object.assign(fi, { "txt_password_security_last_checked": "Tarkistettu viimeksi: {value}" });
+Object.assign(fi, { "txt_no_password_risks_in_filter": "Tässä luokassa ei ole salasanojen riskejä" });
+Object.assign(fi, { "txt_password_security_show_all": "Show all", "txt_password_security_hide_all": "Hide all", "txt_password_security_jump": "Go to item", "txt_password_security_exposed_short": "Exposed {count} times", "txt_password_security_weak_short": "Weak password", "txt_password_security_reused_short": "Reused" });
 
 export default fi;
