@@ -1,0 +1,172 @@
+name: Sync release and deploy
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Upstream release tag, for example v1.8.1 (leave blank for latest)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nodewarden-release-deploy
+  cancel-in-progress: false
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      UPSTREAM_REPO: shuaiplus/NodeWarden
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if [ -n "$REQUESTED_TAG" ]; then
+            RELEASE=$(gh api "repos/$UPSTREAM_REPO/releases/tags/$REQUESTED_TAG") || {
+              echo "Upstream release '$REQUESTED_TAG' does not exist"
+              exit 1
+            }
+          else
+            RELEASE=$(gh api "repos/$UPSTREAM_REPO/releases/latest")
+          fi
+          TAG=$(printf '%s' "$RELEASE" | jq -r '.tag_name // empty')
+          PUBLISHED=$(printf '%s' "$RELEASE" | jq -r '.published_at // empty')
+          case "$TAG" in
+            "" | null | *[!A-Za-z0-9._-]*)
+              echo "Invalid upstream release tag: $TAG"
+              exit 1
+              ;;
+          esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
+
+      - name: Check deployed release
+        id: deployed
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT=$(git show HEAD:.nodewarden-deployed-release 2>/dev/null || true)
+          echo "tag=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: Skip unchanged release
+        id: skip
+        shell: bash
+        env:
+          TARGET_TAG: ${{ steps.release.outputs.tag }}
+          DEPLOYED_TAG: ${{ steps.deployed.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ "$TARGET_TAG" = "$DEPLOYED_TAG" ]; then
+            echo "Already deployed $TARGET_TAG; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch release source
+        if: steps.skip.outputs.skip != 'true'
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch "https://github.com/$UPSTREAM_REPO.git" \
+            "+refs/tags/$TAG:refs/tags/$TAG"
+          git checkout --detach "refs/tags/$TAG"
+          test -f package.json
+          test -f wrangler.kv.toml
+          test -f .node-version
+
+      - name: Restore fork deployment files
+        if: steps.skip.outputs.skip != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout "${{ github.sha }}" -- \
+            .github/workflows/auto-deploy.yml \
+            scripts/prepare-deploy-config.mjs
+
+      - name: Setup Node.js
+        if: steps.skip.outputs.skip != 'true'
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.skip.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Prepare deployment config
+        if: steps.skip.outputs.skip != 'true'
+        shell: bash
+        env:
+          CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
+          CLOUDFLARE_KV_NAMESPACE_ID: ${{ secrets.CLOUDFLARE_KV_NAMESPACE_ID }}
+        run: |
+          set -euo pipefail
+          node scripts/prepare-deploy-config.mjs \
+            wrangler.kv.toml \
+            "$CLOUDFLARE_D1_DATABASE_ID" \
+            "$CLOUDFLARE_KV_NAMESPACE_ID"
+          npx wrangler deploy -c wrangler.kv.toml --dry-run
+
+      - name: Deploy to Cloudflare
+        if: steps.skip.outputs.skip != 'true'
+        run: npx wrangler deploy -c wrangler.kv.toml
+
+      - name: Update fork main
+        if: inputs.release_tag == '' && steps.skip.outputs.skip != 'true'
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "Fork main is not an ancestor of upstream $TAG; refusing to overwrite it"
+            exit 1
+          fi
+          git restore --source="$TAG" --staged --worktree -- wrangler.kv.toml
+          echo "$TAG" > .nodewarden-deployed-release
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/auto-deploy.yml scripts/prepare-deploy-config.mjs .nodewarden-deployed-release
+          git commit -m "chore: sync upstream release $TAG"
+          git push origin HEAD:main
+
+      - name: Summary
+        shell: bash
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          SKIPPED: ${{ steps.skip.outputs.skip }}
+        run: |
+          {
+            echo "### NodeWarden deployment"
+            echo "- Release: \`$TAG\`"
+            if [ "$SKIPPED" = "true" ]; then
+              echo "- Result: already deployed"
+            else
+              echo "- Result: deployed"
+            fi
+            echo "- Worker: https://nodewarden.jessire.workers.dev"
+          } >> "$GITHUB_STEP_SUMMARY"
