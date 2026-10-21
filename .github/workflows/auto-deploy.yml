@@ -147,12 +147,12 @@ jobs:
             echo "Fork main changed during deployment; refusing to overwrite it"
             exit 1
           fi
+          git restore --source="$TAG" --staged --worktree -- wrangler.kv.toml
           git checkout -B main origin/main
           git read-tree --reset -u "$TAG"
           git checkout "${{ github.sha }}" -- \
             .github/workflows/auto-deploy.yml \
             scripts/prepare-deploy-config.mjs
-          git restore --source="$TAG" --staged --worktree -- wrangler.kv.toml
           echo "$TAG" > .nodewarden-deployed-release
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
